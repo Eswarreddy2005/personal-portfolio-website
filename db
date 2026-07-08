@@ -1,0 +1,44 @@
+// db.js
+// Uses SQLite (file-based, zero external setup) so the project runs
+// immediately after `npm install`. See README.md for how to swap this
+// out for MySQL / PostgreSQL / MongoDB in a production deployment.
+
+const path = require("path");
+const Database = require("better-sqlite3");
+
+const dbPath = path.join(__dirname, "data", "portfolio.db");
+const db = new Database(dbPath);
+
+db.pragma("journal_mode = WAL");
+
+// ---- Schema ----
+db.exec(`
+  CREATE TABLE IF NOT EXISTS projects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    tech_stack TEXT NOT NULL,        -- comma-separated tags
+    image_url TEXT,
+    github_url TEXT,
+    live_url TEXT,
+    featured INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS skills (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,          -- e.g. "Frontend", "Backend", "Tools"
+    level INTEGER DEFAULT 80         -- 0-100, used for progress bars
+  );
+
+  CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    message TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+`);
+
+module.exports = db;
